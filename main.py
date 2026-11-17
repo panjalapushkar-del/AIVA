@@ -5,17 +5,9 @@ import datetime
 import os
 import threading
 import time
+import re
 
 
-# =====================================================
-# STUDY BUDDY
-# AI POWERED STUDENT VIRTUAL ASSISTANT
-# Course: AIP203 - Artificial Intelligence Lab
-# Developer: Pushkar Panjala
-# =====================================================
-
-
-# COLORS
 
 BG = "#0B1120"
 SIDEBAR = "#111A2E"
@@ -58,10 +50,6 @@ class StudyBuddy:
 
         self.update_clock()
         self.check_reminders()
-
-    # =================================================
-    # MAIN LAYOUT
-    # =================================================
 
     def create_layout(self):
 
@@ -147,7 +135,6 @@ class StudyBuddy:
             expand=True
         )
 
-        # HEADER
 
         header = tk.Frame(
             self.content,
@@ -181,7 +168,6 @@ class StudyBuddy:
 
         self.clock.pack(side="right", pady=10)
 
-        # PAGE CONTAINER
 
         self.page = tk.Frame(
             self.content,
@@ -196,10 +182,6 @@ class StudyBuddy:
         )
 
         self.show_dashboard()
-
-    # =================================================
-    # SIDEBAR BUTTONS
-    # =================================================
 
     def nav_button(self, text, command):
 
@@ -223,18 +205,11 @@ class StudyBuddy:
             pady=3
         )
 
-    # =================================================
-    # CLEAR PAGE
-    # =================================================
 
     def clear_page(self):
 
         for widget in self.page.winfo_children():
             widget.destroy()
-
-    # =================================================
-    # DASHBOARD
-    # =================================================
 
     def show_dashboard(self):
 
@@ -347,9 +322,6 @@ class StudyBuddy:
             bg=BG
         ).pack(pady=30)
 
-    # =================================================
-    # FEATURE CARDS
-    # =================================================
 
     def feature_card(
         self,
@@ -420,9 +392,6 @@ class StudyBuddy:
             pady=7
         ).pack(anchor="w", pady=(15, 0))
 
-    # =================================================
-    # CHAT PAGE
-    # =================================================
 
     def show_chat(self):
 
@@ -482,9 +451,7 @@ class StudyBuddy:
             foreground=WHITE,
             font=("Segoe UI", 11)
         )
-
-        # Restore previous conversation
-
+        
         if self.chat_history:
 
             for sender, message in self.chat_history:
@@ -498,8 +465,6 @@ class StudyBuddy:
                 "Hello! I am your AI-powered Study Buddy. "
                 "Ask me anything about your studies!"
             )
-
-        # INPUT AREA
 
         input_frame = tk.Frame(
             self.page,
@@ -561,9 +526,6 @@ class StudyBuddy:
 
         self.user_input.focus_set()
 
-    # =================================================
-    # DISPLAY CHAT MESSAGE
-    # =================================================
 
     def add_message(self, sender, message):
 
@@ -585,19 +547,120 @@ class StudyBuddy:
                 "assistant"
             )
 
-        self.chat_area.insert(
-            tk.END,
-            message + "\n",
-            "message"
-        )
-
+        self.insert_markdown(message)
         self.chat_area.config(state="disabled")
-
         self.chat_area.see(tk.END)
 
-    # =================================================
-    # SEND MESSAGE
-    # =================================================
+    def insert_markdown(self, text):
+        """Render common Markdown formatting inside the chat Text widget."""
+        widget = self.chat_area
+        widget.config(state="normal")
+
+        widget.tag_config("heading1", foreground="#F8FAFC",
+                          font=("Segoe UI", 16, "bold"), spacing1=10, spacing3=7)
+        widget.tag_config("heading2", foreground="#C4B5FD",
+                          font=("Segoe UI", 13, "bold"), spacing1=8, spacing3=5)
+        widget.tag_config("bold", font=("Segoe UI", 11, "bold"))
+        widget.tag_config("italic", font=("Segoe UI", 11, "italic"))
+        widget.tag_config("inline_code", foreground="#F9A8D4",
+                          background="#263650", font=("Consolas", 10))
+        widget.tag_config("code", foreground="#D1FAE5",
+                          background="#101827", font=("Consolas", 10),
+                          lmargin1=14, lmargin2=14, spacing1=3, spacing3=3)
+        widget.tag_config("bullet", foreground="#93C5FD",
+                          font=("Segoe UI", 11, "bold"))
+        widget.tag_config("quote", foreground="#CBD5E1",
+                          lmargin1=14, lmargin2=14)
+        widget.tag_config("separator", foreground="#64748B")
+
+        def insert_inline(line, base_tag="message"):
+            """Apply bold, italic and inline-code styles within one line."""
+            pattern = re.compile(r"(\*\*.+?\*\*|`[^`]+`|\*[^*]+\*)")
+            pos = 0
+            for match in pattern.finditer(line):
+                if match.start() > pos:
+                    widget.insert(tk.END, line[pos:match.start()], base_tag)
+
+                token = match.group(0)
+                if token.startswith("**"):
+                    widget.insert(tk.END, token[2:-2], ("bold",))
+                elif token.startswith("`"):
+                    widget.insert(tk.END, token[1:-1], ("inline_code",))
+                else:
+                    widget.insert(tk.END, token[1:-1], ("italic",))
+                pos = match.end()
+
+            if pos < len(line):
+                widget.insert(tk.END, line[pos:], base_tag)
+
+        in_code = False
+        code_lines = []
+
+        for raw_line in text.splitlines():
+            line = raw_line.rstrip()
+
+            if line.strip().startswith("```"):
+                if not in_code:
+                    in_code = True
+                    code_lines = []
+                else:
+                    widget.insert(tk.END, "\n".join(code_lines) + "\n", "code")
+                    in_code = False
+                continue
+
+            if in_code:
+                code_lines.append(line)
+                continue
+
+            stripped = line.strip()
+
+            if not stripped:
+                widget.insert(tk.END, "\n")
+                continue
+
+            if stripped in ("---", "***", "___"):
+                widget.insert(tk.END, "────────────────────────────────────\n",
+                              "separator")
+                continue
+
+            if stripped.startswith("### "):
+                insert_inline(stripped[4:], "heading2")
+                widget.insert(tk.END, "\n")
+                continue
+
+            if stripped.startswith("## "):
+                insert_inline(stripped[3:], "heading1")
+                widget.insert(tk.END, "\n")
+                continue
+
+            if stripped.startswith("# "):
+                insert_inline(stripped[2:], "heading1")
+                widget.insert(tk.END, "\n")
+                continue
+
+            bullet_match = re.match(r"^\s*[-*•]\s+(.*)$", line)
+            numbered_match = re.match(r"^\s*(\d+[.)])\s+(.*)$", line)
+
+            if bullet_match:
+                widget.insert(tk.END, "  •  ", "bullet")
+                insert_inline(bullet_match.group(1))
+                widget.insert(tk.END, "\n")
+            elif numbered_match:
+                widget.insert(tk.END, f"  {numbered_match.group(1)}  ", "bullet")
+                insert_inline(numbered_match.group(2))
+                widget.insert(tk.END, "\n")
+            elif stripped.startswith(">"):
+                widget.insert(tk.END, "  " + stripped.lstrip("> ").strip() + "\n",
+                              "quote")
+            else:
+                insert_inline(line)
+                widget.insert(tk.END, "\n")
+
+        if in_code and code_lines:
+            widget.insert(tk.END, "\n".join(code_lines) + "\n", "code")
+
+        widget.config(state="disabled")
+        widget.see(tk.END)
 
     def send_message(self):
 
@@ -637,16 +700,11 @@ class StudyBuddy:
             daemon=True
         ).start()
 
-    # =================================================
-    # GEMINI AI RESPONSE WITH AUTOMATIC RETRY
-    # =================================================
-
     def get_ai_response(self, question):
 
         answer = None
         last_error = None
 
-        # Use conversation context
 
         prompt = """
 You are Study Buddy, an AI-powered student virtual assistant.
@@ -666,12 +724,14 @@ You can help with:
 
 Instructions:
 
-- Explain concepts in simple language.
-- Give examples wherever necessary.
-- Explain programming code step by step.
-- Provide accurate academic information.
-- Be friendly and supportive.
-- Format answers clearly.
+- Answer the student's exact question first; do not give unrelated introductions.
+- Keep normal answers concise (usually 5-10 lines). Give detail when the student asks for it.
+- Explain concepts in simple language and use a small practical example when useful.
+- Explain programming code step by step when code is requested.
+- Provide accurate academic information. If unsure, say so instead of guessing.
+- Be friendly and supportive, but avoid repeatedly asking generic follow-up questions.
+- Use Markdown headings, **bold** for key terms, bullet points for lists, and fenced code blocks for code.
+- Do not use Markdown tables unless a comparison genuinely needs one.
 
 """
 
@@ -680,8 +740,6 @@ Instructions:
             prompt += f"\n{sender}: {message}\n"
 
         prompt += f"\nStudent: {question}\nStudy Buddy:"
-
-        # Retry 503 errors up to 3 attempts
 
         for attempt in range(3):
 
@@ -735,13 +793,7 @@ Instructions:
             lambda: self.finish_response(question, answer)
         )
 
-    # =================================================
-    # FINISH RESPONSE
-    # =================================================
-
     def finish_response(self, question, answer):
-
-        # Check that chat page is still open
 
         if not hasattr(self, "chat_area"):
             return
@@ -764,10 +816,6 @@ Instructions:
 
         self.user_input.focus_set()
 
-    # =================================================
-    # ACADEMIC HELP
-    # =================================================
-
     def academic_help(self):
 
         self.show_chat()
@@ -778,10 +826,6 @@ Instructions:
         )
 
         self.user_input.focus_set()
-
-    # =================================================
-    # STUDY PLANNER
-    # =================================================
 
     def study_planner(self):
 
@@ -853,10 +897,6 @@ Instructions:
             result
         )
 
-    # =================================================
-    # SET REMINDER
-    # =================================================
-
     def add_reminder(self):
 
         task = simpledialog.askstring(
@@ -892,10 +932,6 @@ Instructions:
             f"Reminder: {reminder_time.strftime('%I:%M %p')}"
         )
 
-    # =================================================
-    # VIEW REMINDERS
-    # =================================================
-
     def view_reminders(self):
 
         if not self.reminders:
@@ -923,10 +959,6 @@ Instructions:
             details
         )
 
-    # =================================================
-    # CHECK REMINDERS
-    # =================================================
-
     def check_reminders(self):
 
         now = datetime.datetime.now()
@@ -947,11 +979,7 @@ Instructions:
             1000,
             self.check_reminders
         )
-
-    # =================================================
-    # CLEAR CHAT
-    # =================================================
-
+        
     def clear_chat(self):
 
         self.chat_history.clear()
@@ -978,10 +1006,6 @@ Instructions:
 
         self.show_chat()
 
-    # =================================================
-    # LIVE DATE AND TIME
-    # =================================================
-
     def update_clock(self):
 
         now = datetime.datetime.now()
@@ -996,10 +1020,6 @@ Instructions:
             1000,
             self.update_clock
         )   
-        
-# ==========================================
-# RUN STUDY BUDDY APPLICATION
-# ==========================================
 
 if __name__ == "__main__":
 
