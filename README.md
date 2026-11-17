@@ -19,7 +19,7 @@ AIVA is an AI-powered virtual assistant developed using Python, Tkinter, and Goo
 
 ## Project Structure
 ```text
-Student-Virtual-Assistant/
+AIVA/
 │
 ├── main.py
 ├── requirements.txt
@@ -30,17 +30,17 @@ Student-Virtual-Assistant/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/panjalapushkar-del/Student-Virtual-Assistant.git
+git clone https://github.com/panjalapushkar-del/AIVA.git
 ```
 
 ### 2. Open the Project Folder
 ```bash
-cd Student-Virtual-Assistant
+cd AIVA
 ```
 
 ### 3. Install Dependencies
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 4. Configure Gemini API Key
@@ -63,7 +63,8 @@ python main.py
 ```
 
 ## Purpose
-The main objective of Study Buddy is to provide students with an easy-to-use AI assistant that supports their academic learning and daily study activities.
+The main objective of AIVA is to provide students with an easy-to-use AI assistant that supports their academic learning and daily study activities.
 
 ## Developed By
-**Student Project – Study Buddy**
+**Pushkar Panjala**  
+**Student Project – AIVA**
