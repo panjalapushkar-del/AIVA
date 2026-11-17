@@ -27,7 +27,7 @@ class StudyBuddy:
         self.root = root
 
         self.root.title(
-            "STUDY BUDDY | AI Student Virtual Assistant"
+            "AIVA | AI Student Virtual Assistant"
         )
 
         self.root.geometry("1150x750")
@@ -64,7 +64,7 @@ class StudyBuddy:
 
         tk.Label(
             self.sidebar,
-            text="✦ STUDY BUDDY",
+            text="✦ AIVA",
             font=("Segoe UI", 19, "bold"),
             fg=WHITE,
             bg=SIDEBAR
@@ -461,8 +461,8 @@ class StudyBuddy:
         else:
 
             self.add_message(
-                "Study Buddy",
-                "Hello! I am your AI-powered Study Buddy. "
+                "AIVA",
+                "Hello! I am your AI-powered AIVA. "
                 "Ask me anything about your studies!"
             )
 
@@ -543,7 +543,7 @@ class StudyBuddy:
 
             self.chat_area.insert(
                 tk.END,
-                "\n✦ Study Buddy\n",
+                "\n✦ AIVA\n",
                 "assistant"
             )
 
@@ -691,7 +691,7 @@ class StudyBuddy:
         self.send_button.config(state="disabled")
 
         self.status_label.config(
-            text="✦ Study Buddy is thinking..."
+            text="✦ AIVA is thinking..."
         )
 
         threading.Thread(
@@ -707,7 +707,7 @@ class StudyBuddy:
 
 
         prompt = """
-You are Study Buddy, an AI-powered student virtual assistant.
+You are AIVA, an AI-powered student virtual assistant.
 
 Your main purpose is to help students with academics.
 
@@ -739,7 +739,7 @@ Instructions:
 
             prompt += f"\n{sender}: {message}\n"
 
-        prompt += f"\nStudent: {question}\nStudy Buddy:"
+        prompt += f"\nStudent: {question}\nAIVA:"
 
         for attempt in range(3):
 
@@ -802,12 +802,12 @@ Instructions:
             return
 
         self.add_message(
-            "Study Buddy",
+            "AIVA",
             answer
         )
 
         self.chat_history.append(
-            ("Study Buddy", answer)
+            ("AIVA", answer)
         )
 
         self.status_label.config(text="")
@@ -998,7 +998,7 @@ Instructions:
                 self.chat_area.config(state="disabled")
 
                 self.add_message(
-                    "Study Buddy",
+                    "AIVA",
                     "Chat cleared! How can I help you?"
                 )
 
