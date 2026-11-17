@@ -1,7 +1,7 @@
-# STUDY BUDDY – AI Student Virtual Assistant
+# AIVA – AI Virtual Assistant
 
 ## About the Project
-Study Buddy is an AI-powered Student Virtual Assistant developed using Python and Tkinter. It helps students with academic activities, study planning, and productivity.
+AIVA is an AI-powered virtual assistant developed using Python, Tkinter, and Google Gemini API. It provides intelligent responses to user queries, academic assistance, study planning, reminders, and an interactive chat interface.
 
 ## Features
 - **AI Chat Assistant:** Get answers to academic and general questions using Google Gemini AI.
